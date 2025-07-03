@@ -178,6 +178,7 @@ def display_search_results(df: pd.DataFrame, search_term: str):
 def main():
     """Main application function"""
      # App title and description
+   # App title and description
     st.title("🔍 Registration Number Search")
     st.markdown("""
     Upload your Excel file and search for registration numbers to get detailed information.
@@ -190,6 +191,25 @@ def main():
         uploaded_file = st.file_uploader(
             "Choose an Excel file",
             type=['xlsx', 'xls'],
+            help="Upload .xlsx or .xls files"
+        )
+        
+        if uploaded_file is not None:
+            st.success(f"File uploaded: {uploaded_file.name}")
+            file_size = uploaded_file.size
+            st.info(f"File size: {file_size:,} bytes")
+            
+            # Store the uploaded file in session state for persistence
+            st.session_state['uploaded_file'] = uploaded_file
+            st.session_state['file_name'] = uploaded_file.name
+        
+        # Check if we have a stored file
+        if 'uploaded_file' in st.session_state and uploaded_file is None:
+            st.info(f"Using previously uploaded file: {st.session_state['file_name']}")
+            uploaded_file = st.session_state['uploaded_file']
+            
+            # Add button to clear the stored file
+            if st.button("🗑️ Clear File"):
     
     # App title and description
     st.title("🔍 Registration Number Search")
