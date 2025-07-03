@@ -177,6 +177,19 @@ def display_search_results(df: pd.DataFrame, search_term: str):
 
 def main():
     """Main application function"""
+     # App title and description
+    st.title("🔍 Registration Number Search")
+    st.markdown("""
+    Upload your Excel file and search for registration numbers to get detailed information.
+    Simply type any registration number in the search box to find all related data.
+    """)
+    
+    # Sidebar for file upload
+    with st.sidebar:
+        st.header("📁 File Upload")
+        uploaded_file = st.file_uploader(
+            "Choose an Excel file",
+            type=['xlsx', 'xls'],
     
     # App title and description
     st.title("🔍 Registration Number Search")
