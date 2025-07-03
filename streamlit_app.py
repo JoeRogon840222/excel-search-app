@@ -177,8 +177,8 @@ def display_search_results(df: pd.DataFrame, search_term: str):
 
 def main():
     """Main application function"""
-     # App title and description
-   # App title and description
+    
+    # App title and description
     st.title("🔍 Registration Number Search")
     st.markdown("""
     Upload your Excel file and search for registration numbers to get detailed information.
@@ -210,40 +210,39 @@ def main():
             
             # Add button to clear the stored file
             if st.button("🗑️ Clear File"):
+    # Compact header
+    st.title("🔍 Registration Search")
     
-    # App title and description
-    st.title("🔍 Registration Number Search")
-    st.markdown("""
-    Upload your Excel file and search for registration numbers to get detailed information.
-    Simply type any registration number in the search box to find all related data.
-    """)
+    # File upload in main area (compact)
+    uploaded_file = st.file_uploader(
+        "Upload Excel file",
+        type=['xlsx', 'xls'],
+        help="Upload .xlsx or .xls files"
+    )
     
-    # Sidebar for file upload
-    with st.sidebar:
-        st.header("📁 File Upload")
-        uploaded_file = st.file_uploader(
-            "Choose an Excel file",
-            type=['xlsx', 'xls'],
-            help="Upload .xlsx or .xls files"
-        )
-        
-        if uploaded_file is not None:
-            st.success(f"File uploaded: {uploaded_file.name}")
-            file_size = uploaded_file.size
-            st.info(f"File size: {file_size:,} bytes")
-      
-            # Store the uploaded file in session state for persistence
-            st.session_state['uploaded_file'] = uploaded_file
-            st.session_state['file_name'] = uploaded_file.name
-        
-        # Check if we have a stored file
-        if 'uploaded_file' in st.session_state and uploaded_file is None:
-            st.info(f"Using previously uploaded file: {st.session_state['file_name']}")
-            uploaded_file = st.session_state['uploaded_file']
+    if uploaded_file is not None:
+        # Store the uploaded file in session state for persistence
+        st.session_state['uploaded_file'] = uploaded_file
+        st.session_state['file_name'] = uploaded_file.name
+    
+    # Check if we have a stored file
+    if 'uploaded_file' in st.session_state and uploaded_file is None:
+        uploaded_file = st.session_state['uploaded_file']
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            st.success(f"File loaded: {st.session_state['file_name']}")
+        with col2:
+            if st.button("🗑️ Clear"):
+                del st.session_state['uploaded_file']
+                del st.session_state['file_name']
+                st.rerun()
+    
     # Main content area
+    # Main search interface
     if uploaded_file is not None:
         # Load the Excel file
         with st.spinner("Loading Excel file..."):
+        with st.spinner("Loading..."):
             df = load_excel_file(uploaded_file)
         
         if df is not None:
@@ -260,6 +259,7 @@ def main():
             
             # Show column information
             st.subheader("📋 Column Information")
+            # Get searchable columns
             searchable_columns = get_searchable_columns(df)
             
             col_info = pd.DataFrame({
@@ -293,16 +293,21 @@ def main():
             # Display selected columns info
             st.info(f"Searching in {len(selected_columns)} column(s): {', '.join(selected_columns)}")
             
+            # Search bar (main focus)
             search_term = st.text_input(
                 "Enter registration number:",
                 placeholder="Type registration number to search...",
                 help="Enter any registration number to find all related information"
+                "Search:",
+                placeholder="Enter registration number or any search term...",
+                help="Search across all columns"
             )
             
             # Real-time search
             if search_term:
                 with st.spinner("Searching..."):
                     filtered_df = search_dataframe(df, search_term, selected_columns)
+                    filtered_df = search_dataframe(df, search_term, searchable_columns)
                     display_search_results(filtered_df, search_term)
             else:
                 # Display full dataset when no search term
@@ -362,6 +367,7 @@ def main():
                     file_name=f"full_dataset_{uploaded_file.name.split('.')[0]}.csv",
                     mime="text/csv"
                 )
+                st.info("Enter a search term above to find records")
     
     else:
         # Instructions when no file is uploaded
@@ -383,10 +389,7 @@ def main():
         - ✅ Easy-to-read results display
         - ✅ Handles large registration databases
         """)
-
+        st.info("Please upload an Excel file to start searching")
 if __name__ == "__main__":
     try:
-        main()
-    except Exception as e:
-        st.error(f"Application error: {str(e)}")
         st.stop()
