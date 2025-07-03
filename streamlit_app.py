@@ -198,7 +198,15 @@ def main():
             st.success(f"File uploaded: {uploaded_file.name}")
             file_size = uploaded_file.size
             st.info(f"File size: {file_size:,} bytes")
-    
+      
+            # Store the uploaded file in session state for persistence
+            st.session_state['uploaded_file'] = uploaded_file
+            st.session_state['file_name'] = uploaded_file.name
+        
+        # Check if we have a stored file
+        if 'uploaded_file' in st.session_state and uploaded_file is None:
+            st.info(f"Using previously uploaded file: {st.session_state['file_name']}")
+            uploaded_file = st.session_state['uploaded_file']
     # Main content area
     if uploaded_file is not None:
         # Load the Excel file
